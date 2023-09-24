@@ -6,11 +6,30 @@ const initialItems = [
 ];
 
 export default function App() {
+  const [items, setItems] = useState([]);
+  function handleItem(item) {
+    setItems((items) => [...items, item]);
+  }
+
+  function handleDelete(id) {
+    setItems((items) => items.filter((item) => item.id !== id));
+  }
+  function handleChange(id) {
+    setItems((items) =>
+      items.map((item) =>
+        item.id === id ? { ...item, packed: !item.packed } : item
+      )
+    );
+  }
   return (
     <div className="app>">
       <Logo />
-      <Form />
-      <PackingList />
+      <Form toAddItems={handleItem} />
+      <PackingList
+        items={items}
+        toDeleteItem={handleDelete}
+        toChangeItem={handleChange}
+      />
       <Stats />
     </div>
   );
@@ -20,7 +39,7 @@ function Logo() {
   return <h1>🎉 Far Away 🥂</h1>;
 }
 
-function Form() {
+function Form({ toAddItems }) {
   const [description, setDescription] = useState("");
   const [quantity, setQuantity] = useState(1);
   function handleSubmit(e) {
@@ -29,6 +48,7 @@ function Form() {
     if (!description) return;
 
     const newItem = { description, quantity, packed: false, id: Date.now() };
+    toAddItems(newItem);
 
     setDescription("");
     setQuantity(1);
@@ -58,25 +78,35 @@ function Form() {
   );
 }
 
-function PackingList() {
+function PackingList({ items, toDeleteItem, toChangeItem }) {
   return (
     <div className="list">
       <ul>
-        {initialItems.map((item) => (
-          <Item item={item} key={item.id} />
+        {items.map((item) => (
+          <Item
+            item={item}
+            key={item.id}
+            toDeleteItem={toDeleteItem}
+            toChangeItem={toChangeItem}
+          />
         ))}
       </ul>
     </div>
   );
 }
 
-function Item({ item }) {
+function Item({ item, toDeleteItem, toChangeItem }) {
   return (
     <li>
+      <input
+        type="checkbox"
+        value={item.packed}
+        onChange={() => toChangeItem(item.id)}
+      />
       <span style={item.packed ? { textDecoration: "line-through" } : {}}>
         {item.quantity} {item.description}
       </span>
-      <button>❌</button>
+      <button onClick={() => toDeleteItem(item.id)}>❌</button>
     </li>
   );
 }
