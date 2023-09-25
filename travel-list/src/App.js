@@ -30,7 +30,7 @@ export default function App() {
         toDeleteItem={handleDelete}
         toChangeItem={handleChange}
       />
-      <Stats />
+      <Stats items={items} />
     </div>
   );
 }
@@ -111,10 +111,19 @@ function Item({ item, toDeleteItem, toChangeItem }) {
   );
 }
 
-function Stats() {
+function Stats({ items }) {
+  const numItems = items.length;
+  const numPacked = items.filter((item) => item.packed).length;
+  const perCentage = Math.round((numPacked / numItems) * 100);
   return (
     <footer className="stats">
-      <em>😎You have X items on your list, and you already packed X(X%)</em>
+      <em>
+        {perCentage === 100
+          ? "You have got everything! Ready to go!"
+          : `😎You have ${numItems} items on your list, and you already packed ${numPacked}(${
+              perCentage === NaN ? 0 : perCentage
+            }%)`}
+      </em>
     </footer>
   );
 }
